@@ -1,0 +1,13 @@
+# NetBeans Ant project specific files
+/build/
+/dist/
+/nbbuild/
+/nbdist/
+/nbproject/private/
+/nbproject/private.properties
+
+# Compiled Java class files
+*.class
+
+# Other common ignores
+.DS_Store
