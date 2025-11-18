@@ -104,7 +104,7 @@
         </c:if>
 
         <hr>
-        <a href="index.html">Volver a la página inicial</a>
+        <a href="index.jsp">Volver a la página inicial</a>
         
     </div>
 </body>
