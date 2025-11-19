@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Servlet Controlador MVC con seguridad JAAS.
+ *
  * @author Jesus Hernandez
  */
 @WebServlet(name = "ControlServlet", urlPatterns = {"/ControlServlet"})
@@ -53,7 +54,7 @@ public class ControlServlet extends HttpServlet {
                 double precio = Double.parseDouble(precioStr.replace(",", "."));
 
                 Articulo art = new Articulo(id, categoria, descripcion, precio);
-                
+
                 if (articuloDAO.insertar(art)) {
                     System.out.println("Articulo insertado con éxito.");
                 } else {
@@ -86,7 +87,7 @@ public class ControlServlet extends HttpServlet {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
             response.sendRedirect("index.jsp");
 
         } else if (accion.equals("Edicion")) {
@@ -102,7 +103,7 @@ public class ControlServlet extends HttpServlet {
                 double precio = Double.parseDouble(precioStr.replace(",", "."));
 
                 Articulo art = new Articulo(id, categoria, descripcion, precio);
-                
+
                 if (articuloDAO.modificar(art)) {
                     System.out.println("Artículo " + id + " modificado.");
                 } else {
@@ -118,15 +119,36 @@ public class ControlServlet extends HttpServlet {
         } else if (accion.equals("Lista")) {
             // --- Accesible para todos los roles (admin e invitado) ---
             System.out.println("Acción LISTA detectada.");
-            
+
             List<Articulo> lista = articuloDAO.getTodos();
             request.setAttribute("listaArticulos", lista);
 
             getServletContext().getRequestDispatcher("/listado.jsp").forward(request, response);
+        } else if (accion.equals("Logout")) {
+            System.out.println("Acción LOGOUT detectada.");
+
+            try {
+                // 1. Cierra la sesión de seguridad del servidor (JAAS)
+                request.logout();
+
+                // 2. Invalida la sesión HTTP (borra atributos como mensajes, carritos, etc.)
+                if (request.getSession(false) != null) {
+                    request.getSession().invalidate();
+                }
+
+                System.out.println("Sesión cerrada correctamente.");
+
+            } catch (ServletException e) {
+                System.out.println("Error al intentar cerrar sesión: " + e.getMessage());
+            }
+
+            // 3. Redirigir al inicio (ahora se verá como "Visita")
+            response.sendRedirect("index.jsp");
 
         } else {
             // Acción desconocida
             response.sendRedirect("index.jsp");
+
         }
     }
 
