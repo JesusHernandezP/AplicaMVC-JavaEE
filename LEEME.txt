@@ -1,0 +1,136 @@
+Proyecto: AplicaMVC - Gestión de Almacén con Seguridad JAAS
+Alumno: Jesús Hernández
+
+
+1. Base de Datos (Script SQL)
+
+/* * SCRIPT DE CREACIÓN DE BASE DE DATOS 
+ * Proyecto: AplicaMVC con Seguridad JAAS
+ * Ejecutar en Java DB (Derby) - Base de datos: ARTICULOSBD
+ */
+
+-- 1. Limpieza de tablas previas (si existen)
+DROP TABLE USUARIO_GRUPO;
+DROP TABLE USUARIO;
+DROP TABLE ARTICULOS;
+
+-- 2. Creación de tabla ARTICULOS (Gestión de Almacén)
+CREATE TABLE ARTICULOS (
+   IDPROD INTEGER NOT NULL,
+   CATEGORIA VARCHAR (40) NOT NULL,
+   DESCRIPCION VARCHAR(40) NOT NULL,
+   PRECIO DOUBLE NOT NULL,
+   PRIMARY KEY (IDPROD)
+);
+
+-- 3. Creación de tablas de SEGURIDAD (JAAS)
+CREATE TABLE USUARIO (
+    NOMBRE VARCHAR(80) NOT NULL,
+    CLAVE VARCHAR(100) NOT NULL, -- Almacenará SHA-256 Hex
+    PRIMARY KEY (NOMBRE)
+);
+
+CREATE TABLE USUARIO_GRUPO (
+    USUARIO VARCHAR(80) NOT NULL,
+    GRUPO VARCHAR(80) NOT NULL,
+    PRIMARY KEY (USUARIO, GRUPO)
+);
+
+-- 4. Inserción de datos de prueba (Artículos)
+ INSERT INTO ARTICULOS VALUES (1, 'BICI', 'ORBEA COMPASS 14', 402.15);
+ INSERT INTO ARTICULOS VALUES (2, 'BICI', 'ORBEA COMPACT 16', 502);
+ INSERT INTO ARTICULOS VALUES (3, 'BICI', 'SPECIALIZED XT', 700.50);
+ INSERT INTO ARTICULOS VALUES (4, 'BICI', 'SPECIALIZED ST', 805.10);
+ INSERT INTO ARTICULOS VALUES (5, 'BICI', 'TREK 6700', 580.56);
+ INSERT INTO ARTICULOS VALUES (6, 'BICI', 'TREK 6800', 600);
+ INSERT INTO ARTICULOS VALUES (7, 'BICI', 'TREK 6900', 758.10);
+ INSERT INTO ARTICULOS VALUES (8, 'BICI', 'TREK 7000', 845.00);
+ INSERT INTO ARTICULOS VALUES (9, 'BICI', 'TREK 7100', 1026.98);
+ INSERT INTO ARTICULOS VALUES (11, 'BICI', 'MERIDA AS', 310.10);
+ INSERT INTO ARTICULOS VALUES (12, 'BICI', 'MERIDA AT', 540.10);
+ INSERT INTO ARTICULOS VALUES (13, 'BICI', 'MERIDA AU', 610.20);
+ INSERT INTO ARTICULOS VALUES (14, 'BICI', 'MERIDA AV', 710.35);
+ INSERT INTO ARTICULOS VALUES (40, 'ROPA', 'BAÑADOR HL A', 40);
+ INSERT INTO ARTICULOS VALUES (42, 'ROPA', 'BAÑADOR HM B', 42.10);
+ INSERT INTO ARTICULOS VALUES (45, 'ROPA', 'BAÑADOR MM A', 36.25);
+ INSERT INTO ARTICULOS VALUES (73, 'ROPA', 'CAMISETA HL T', 16);
+ INSERT INTO ARTICULOS VALUES (74, 'ROPA', 'CAMISETA HXL T', 18.25);
+ INSERT INTO ARTICULOS VALUES (75, 'ROPA', 'CAMISETA HXXL T', 19);
+ INSERT INTO ARTICULOS VALUES (76, 'ROPA', 'CAMISETA ML T', 14.15);
+ INSERT INTO ARTICULOS VALUES (77, 'ROPA', 'CAMISETA ML C', 19.70);
+ INSERT INTO ARTICULOS VALUES (78, 'ROPA', 'CAMISETA MS T', 20);
+ INSERT INTO ARTICULOS VALUES (79, 'ROPA', 'CAMISETA MXL T', 21.37);
+ INSERT INTO ARTICULOS VALUES (140, 'RAQUETA', 'RAFA 100', 65);
+ INSERT INTO ARTICULOS VALUES (141, 'RAQUETA', 'RAFA 200', 77);
+ INSERT INTO ARTICULOS VALUES (260, 'COMPLEMENTOS', 'PULSÓMETRO ARRITMO 1', 70);
+ INSERT INTO ARTICULOS VALUES (261, 'COMPLEMENTOS', 'PULSÓMETRO ARRITMO 2', 124);
+ INSERT INTO ARTICULOS VALUES (262, 'COMPLEMENTOS', 'CRONÓMETRO TEMPORO X', 200);
+ INSERT INTO ARTICULOS VALUES (263, 'COMPLEMENTOS', 'BRONCEADOR FACTOR 15', 20);
+ INSERT INTO ARTICULOS VALUES (264, 'COMPLEMENTOS', 'BRONCEADOR FACTOR 25', 25);
+ INSERT INTO ARTICULOS VALUES (265, 'COMPLEMENTOS', 'BRONCEADOR FACTOR 35', 30);
+ INSERT INTO ARTICULOS VALUES (266, 'COMPLEMENTOS', 'BRONCEADOR FACTOR 55', 40);
+ INSERT INTO ARTICULOS VALUES (267, 'COMPLEMENTOS', 'BRONCEADOR FACTOR 100', 60);
+
+-- 5. Inserción de Usuarios (Contraseñas en SHA-256 Hex)
+-- Usuario: juan (Rol: admin) -> Clave: 12345
+INSERT INTO USUARIO (NOMBRE, CLAVE) VALUES ('juan', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5');
+INSERT INTO USUARIO_GRUPO (USUARIO, GRUPO) VALUES ('juan', 'admin');
+
+-- Usuario: pedro (Rol: invitado) -> Clave: abcde
+INSERT INTO USUARIO (NOMBRE, CLAVE) VALUES ('pedro', '36bbe50ed96841d10443bcb670d6554f0a34b761be67ec9c4a8ad2c0c44ca42c');
+INSERT INTO USUARIO_GRUPO (USUARIO, GRUPO) VALUES ('pedro', 'invitado');
+
+
+Instrucciones de despliegue:
+
+ 2. Configuración del Pool de Conexiones (articPool)
+
+Pasos para configurar en GlassFish (Consola Admin: localhost:4848)
+1. Ir a Resources -> JDBC -> JDBC Connection Pools.
+2. Pulsar New...
+
+Paso 1:
+- Name: articPool 
+- Resource Type: javax.sql.DataSource
+- Database Driver Vendor: Derby (o JavaDB)
+- Pulsar Next.
+
+Paso 2 (Propiedades Adicionales):
+Bajar hasta la tabla de propiedades y configurar:
+- User: root (o el usuario que usaras al crear la BD) 
+- Password: root
+- DatabaseName: ARTICULOSBD 
+- ServerName: localhost
+- PortNumber: 1527
+- Pulsar Finish.
+
+Importante: Entrar en el pool recién creado (articPool) y pulsar el botón Ping para verificar que dice "Ping Succeeded".
+
+3. Configuración del Recurso JDBC (jdbc/articdbp)
+Ir a Resources -> JDBC -> JDBC Resources.
+
+Pulsar New...
+Configuración:
+- JNDI Name: jdbc/articdbp 
+- Pool Name: articPool (seleccionar del desplegable)
+- Pulsar OK.
+
+4. Configuración del Realm de Seguridad (usuariosRealm)
+Pasos para configurar la seguridad JAAS en GlassFish:
+
+- Ir a Configurations -> server-config -> Security -> Realms.
+- Pulsar New...
+- Rellenar los campos con estos valores exactos:
+- Name: usuariosRealm
+- Class Name: com.sun.enterprise.security.auth.realm.jdbc.JDBCRealm
+- JAAS Context: jdbcRealm 
+- JNDI: jdbc/articdbp (¡Ojo! Usamos nuestra conexión, no la del PDF de seguridad)
+- User Table: USUARIO 
+- User Name Column: NOMBRE 
+- Password Column: CLAVE 
+- Group Table: USUARIO_GRUPO 
+- Group Table User Name Column: USUARIO 
+- Group Name Column: GRUPO 
+- Password Encryption Algorithm: SHA-256 
+- Encoding: Hex (Es fundamental poner esto, ya que las claves del script están en Hexadecimal).
+- Pulsar OK.

@@ -1,5 +1,6 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -96,7 +97,9 @@
                             <td><c:out value="${art.id}"/></td>
                             <td><c:out value="${art.categoria}"/></td>
                             <td><c:out value="${art.descripcion}"/></td>
-                            <td><c:out value="${art.precio}"/></td>
+                            <td><fmt:setLocale value="es_ES" />
+                                <fmt:formatNumber value="${art.precio}" type="currency" currencyCode="EUR" />
+                            </td>
                         </tr>
                     </c:forEach>
                 </tbody>
